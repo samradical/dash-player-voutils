@@ -1,0 +1,39 @@
+{
+  "name": "@samelie/dash-player-voutils",
+  "description": "",
+  "homepage": "https://github.com/samradical/dash-player-voutils",
+  "author": "Sam Elie <samradelie@gmail.com>",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samradical/dash-player-voutils.git",
+    "web": "https://github.com/samradical/dash-player-voutils/"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "budo index.js:bundle.js  --host 0.0.0.0 --live | garnish -t [babelify --stage 1 ]",
+    "dev": "budo example.js:bundle.js  --host 0.0.0.0 --live | garnish -t [babelify --stage 1 ]",
+    "build": "browserify index.js > bundle.js"
+  },
+  "dependencies": {
+    "lodash": "^4.16.4"
+  },
+  "devDependencies": {
+  },
+  "keywords": [
+    "youtube",
+    "dash",
+    "sidx",
+    "mpd"
+  ],
+  "bugs": {
+    "url": "https://github.com/samradical/dash-player-voutils/issues"
+  },
+  "engines": {
+    "node": ">=5.0.0"
+  },
+  "licenses": [{
+    "type": "MIT",
+    "url": "https://github.com/samradical/dash-player-voutils/raw/master/LICENSE"
+  }]
+}
