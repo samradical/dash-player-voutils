@@ -1,30 +1,14 @@
-const _ = require('lodash')
-
-let VIDEO_VO = {
-  currentRefIndexs: null,
-  currentRefDuration: 0,
-  watchedRefs: null,
-  timelineTotal: 0,
-  type: null, //audio, video
-  referencesLength: undefined,
-  manifest:null
-}
-
-const getTypeFromUUID = (uuid) => {
-  return uuid.split(':')[0]
-}
-
 const getUUID = (type, videoId, resolution) => {
   let _res = type === 'video' ? resolution : 'audio'
   return `${type}:${videoId}:${_res}`
 }
 
 const generateVideoVo = (uuid) => {
-  let _vo = _.clone(VIDEO_VO)
+  let _vo = Object.assign({}, require('./lib/vo'));
   _vo.currentRefIndexs = Array(0)
   _vo.currentRefIndexs.push(-1)
   _vo.uuid = uuid
-  _vo.type = getTypeFromUUID(uuid)
+  _vo.type = uuid.split(':')[0]
   _vo.watchedRefs = new Set()
   return _vo
 }
@@ -34,7 +18,6 @@ const addManifestToVideoVo = (manifest, videoVo) => {
   let { references } = sidx
   if (!manifest || !sidx) {
     let _err = new Error('No Manifest')
-    _err.name = ERROR_TYPES.VIDEO_VO
     throw _err
     return
   }
@@ -42,22 +25,22 @@ const addManifestToVideoVo = (manifest, videoVo) => {
   videoVo.referencesLength = references.length
 }
 
- const incrementRefIndex = (vo, amount = 1, callback)=> {
-    let _refs = vo.currentRefIndexs
-    let _firstRefIndex = _refs[_refs.length - 1] + 1
-    vo.currentRefIndexs = [...Array(amount).keys()]
-      .map(i => {
-        return i + _firstRefIndex
-      }).filter(index => {
-        //make all the indexs greater than the length false
-        return (index < vo.referencesLength)
-      })
+const incrementRefIndex = (vo, amount = 1, callback) => {
+  let _refs = vo.currentRefIndexs
+  let _firstRefIndex = _refs[_refs.length - 1] + 1
+  vo.currentRefIndexs = [...Array(amount).keys()]
+    .map(i => {
+      return i + _firstRefIndex
+    }).filter(index => {
+      //make all the indexs greater than the length false
+      return (index < vo.referencesLength)
+    })
 
-    //too many, so do something, will already be finishing the last, no time
-    if (!vo.currentRefIndexs.length) {
-      callback(vo)
-    }
+  //too many, so do something, will already be finishing the last, no time
+  if (!vo.currentRefIndexs.length) {
+    callback(vo)
   }
+}
 
 const generateMediaSourceVo = (vo, options = {}) => {
   let { manifest } = vo
@@ -65,7 +48,6 @@ const generateMediaSourceVo = (vo, options = {}) => {
   let { references } = sidx
   if (!vo.manifest || !sidx) {
     let _err = new Error('No Manifest')
-    _err.name = ERROR_TYPES.VIDEO_VO
     throw _err
     return
   }
@@ -92,13 +74,6 @@ const generateMediaSourceVo = (vo, options = {}) => {
   mediaSourceVo.indexLength = sidx.firstOffset;
   mediaSourceVo['timestampOffset'] = sRef['startTimeSec'];
   mediaSourceVo['duration'] = duration;
-  /*_.forIn(options, (val, key) => {
-    mediaSourceVo[key] = val;
-  })
-  if(!manifest.youtubeDl){
-    mediaSourceVo.url += '&range=' + mediaSourceVo.byteRange;
-  }
-  console.log(mediaSourceVo);*/
   mediaSourceVo.videoId = manifest.videoId;
   mediaSourceVo.id = manifest.id || mediaSourceVo.videoId
   mediaSourceVo.indexUrl = mediaSourceVo.url + `?range=${mediaSourceVo.indexRange}`
